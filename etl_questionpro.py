@@ -6,25 +6,26 @@ import time
 from dotenv import load_dotenv
 import os
 
-# config gerais
-server = os.getenv("DB_SERVER")
-database = os.getenv("DB_NAME")
+# Environment variables
 user = os.getenv("DB_USER")
-senha = os.getenv("DB_PASSWORD")
-table_name = os.getenv("TABLE_NAME", "TB_RESPOSTA_QUESTIONPRO")  # valor padrão
+password = os.getenv("DB_PASSWORD")
 
-# config api
+server = 'server_name'
+database = 'db_name'
+table_name = 'table_name'
+
+# API variables
 api_key = os.getenv("API_KEY")
 survey_id = os.getenv("SURVEY_ID")
-env = "questionpro.com"  # ambiente padrão
+env = 'questionpro.com'  # thasts the padron to USA asd Brazil, consult the env to your region in questionpro documentation
 
-# conecta banco
+# db connection
 max_retries = 10
 base_delay = 1
 timeout = 60
 
 def connect_db(
-    server, database, user, senha,
+    server, database, user, password,
     max_retries=10, base_delay=1, timeout=60
 ):
     for attempt in range(1, max_retries + 1):
@@ -37,21 +38,21 @@ def connect_db(
                 TrustServerCertificate=Yes;
                 MultiSubnetFailover=Yes;
                 UID={user};
-                PWD={senha};
+                PWD={password};
                 """,
                 timeout=timeout
             )
-            print("Conexão bem-sucedida!")
+            print("Connection successful!")
             return conn
         except pyodbc.Error as e:
-            print(f"Tentativa {attempt} falhou: {e}")
+            print(f"Attempt {attempt} failed: {e}")
             if attempt == max_retries:
                 raise
             sleep_time = base_delay * (2 ** (attempt - 1))
             time.sleep(sleep_time)
 
 
-# extração questionpro
+# extracting data from QuestionPro
 def get_responses(api_key, survey_id, env):
     headers = {
         "Content-Type": "application/json",
@@ -67,23 +68,23 @@ def get_responses(api_key, survey_id, env):
         response = requests.get(url, headers=headers)
 
         if response.status_code != 200:
-            print(f"Erro {response.status_code}: {response.text}")
+            print(f"Error {response.status_code}: {response.text}")
             break
 
         data = response.json()
         responses = data.get("response", [])
         all_responses.extend(responses)
 
-        print(f"Página {page} baixada com {len(responses)} respostas...")
+        print(f"Page {page} dowloalded with {len(responses)} responses...")
 
         if page >= data["pagination"]["totalPages"]:
             break
         page += 1
 
-    print(f"Total de respostas coletadas: {len(all_responses)}")
+    print(f"Total of responses: {len(all_responses)}")
     return all_responses
 
-# json em df
+# json -> df
 def json_to_dataframe(responses):
     rows = []
 
@@ -109,33 +110,31 @@ def json_to_dataframe(responses):
 
     df = pd.DataFrame(rows)
 
-    if "timestamp" in df.columns:
-        df["timestamp"] = df["timestamp"].str.replace(" ART", "", regex=False)
-        df["timestamp"] = pd.to_datetime(df["timestamp"], format="%d %b, %Y %I:%M:%S %p", errors='coerce')
+    if "responseID" in df.columns:
+        df["responseID"] = df["responseID"].str.replace(" ART", "", regex=False)
+        df["responseID"] = pd.to_datetime(df["responseID"], format="%d %b, %Y %I:%M:%S %p", errors='coerce')
 
-    df = df.dropna(subset=["timestamp"])
+    df = df.dropna(subset=["responseID"])
     return df
 
-# insere respostas no db
+# insert responses in db
 def insert_db(df, conn, table_name):
     cursor = conn.cursor()
 
-    # verifica observações do db
-    cursor.execute(f"SELECT timestamp FROM {table_name}")
-    existing_timestamps = {row[0] for row in cursor.fetchall()}
-
-    # filtra novas
-    new_rows = df[~df["timestamp"].isin(existing_timestamps)]
+    # check for duplicate data
+    cursor.execute(f"SELECT responseID FROM {table_name}")
+    existing_responseID = {row[0] for row in cursor.fetchall()}
+    new_rows = df[~df["responseID"].isin(existing_responseID)]
 
     if new_rows.empty:
-        print("ℹ️ Nenhuma nova resposta a inserir.")
+        print("Any new response")
         return 0
 
-    # verifica colunas da tabela
+    # verify columns
     existing_columns = [col.column_name for col in cursor.columns(table=table_name)]
     conn.commit()
 
-    # Inserção linha a linha
+    # insert new data
     for _, row in new_rows.iterrows():
         cols = ", ".join(f"[{col}]" for col in row.index)
         placeholders = ", ".join("?" for _ in row)
@@ -145,20 +144,20 @@ def insert_db(df, conn, table_name):
         try:
             cursor.execute(insert_sql, values)
         except pyodbc.IntegrityError:
-            continue  # ignora duplicatas silenciosamente
+            continue  # ignore duplicate data
         except Exception as e:
-            print(f"Erro ao inserir linha: {e}")
+            print(f"Error in line: {e}")
     conn.commit()
 
     return len(new_rows)
 
 def main():
-    conn = connect_db(server, database, user, senha)
+    conn = connect_db(server, database, user, password)
     responses = get_responses(api_key, survey_id, env)
     df = json_to_dataframe(responses)
     total_inserted = insert_db(df, conn, table_name)
     conn.close()
-    print(f"✅ Inserção concluída: {total_inserted} novas respostas adicionadas ao banco.")
+    print(f"Conclude: {total_inserted} new responses.")
 
 if __name__ == "__main__":
     main()

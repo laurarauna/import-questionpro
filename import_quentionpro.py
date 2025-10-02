@@ -4,7 +4,7 @@ import pandas as pd
 
 # general config: input/output
 input_path = "respostas_quetsionpro.json"
-output_path = "base_questionpro.xlsx"
+output_path = "questionpro_data.xlsx"
 
 # API config
 api_key = "xxxxxx-xxxxxx-xxxxxx-xx"  # generated on the QuestionPro documentation page
