@@ -6,7 +6,7 @@ A Python tool to extract survey responses from the QuestionPro API, with two out
 
 **Note:** This project is not affiliated with or endorsed by QuestionPro. It is an independent tool created to facilitate interaction with the QuestionPro API.
 
-## 📁 Repository Structure
+## Repository Structure
 | File                        | Description |
 |-----------------------------|-------------|
 | `import_quentionpro.py` | Imports data from the API to Excel |
