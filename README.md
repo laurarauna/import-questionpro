@@ -33,10 +33,10 @@ A Python tool to extract survey responses from the QuestionPro API, with two out
 ## Configuration (.env)
 Create a .env file in the project root with the following variables:
 
-  - API_KEY=your_api_key_here
-  - SURVEY_ID=your_survey_id_here
-  - DB_USER=your_db_user
-  - DB_PASSWORD=your_db_password
+- API_KEY=your_api_key_here
+- SURVEY_ID=your_survey_id_here
+- DB_USER=your_db_user
+- DB_PASSWORD=your_db_password
 
 ## Usage
 **API:**
