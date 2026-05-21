@@ -82,6 +82,9 @@ After running the script, the generated Excel file (`quetsionpro_data.xlsx`) wil
 ## Integrating with Power BI
 You can connect your SQL Server database to Power BI to monitor survey responses in near real-time. Schedule etl_questionpro.py to run periodically (e.g., daily) to keep your dataset updated.
 
+<img width="763" height="426" alt="Captura de tela 2026-05-21 163939" src="https://github.com/user-attachments/assets/66139d6a-b2b5-425f-8b26-aa7d96fd8215" />
+
+
 ## API Documentation
 For more details on the QuestionPro API endpoints, authentication, and advanced usage, refer to the official documentation:
 
