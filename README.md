@@ -1,12 +1,27 @@
-# import-questionpro
-A Python tool to extract survey responses from the QuestionPro API, with two output options:
+# QuestionPro API to SQL Server Pipeline
 
-- Export responses to an Excel file
-- Persist responses directly into a SQL Server database
+A Python ETL tool designed to extract survey responses from the QuestionPro API, transform raw data into a structured relational format, and load it directly into a SQL Server database or an Excel file.
 
-Use: This tool plays an important role in customer success tracking pipelines.
+**Note:** This project is not affiliated with or endorsed by QuestionPro. It is an independent tool created to automate interactions with the QuestionPro API.
 
-**Note:** This project is not affiliated with or endorsed by QuestionPro. It is an independent tool created to facilitate interaction with the QuestionPro API.
+## Business Impact & Power BI Integration
+
+This tool plays a critical role in our Customer Success tracking pipelines. By automating the extraction of survey data, it eliminates manual exports and enables near real-time monitoring of customer satisfaction and retention metrics.
+
+The processed data feeds directly into a Power BI Dashboard requested by the Customer Success team to monitor the performance of customer retention call campaigns.
+
+Challenges & Technical Solutions:
+- Targeting & Cross-Referencing: The challenge was designing a survey targeted at customers with a poor relationship history and seamlessly integrating these subjective responses with hard financial data.
+- The Solution: We solved this by extracting specific customer identifiers from the QuestionPro payloads and modeling relationship keys (e.g., Contract IDs) within Azure SQL Server. This allowed us to build a star schema joining the survey responses directly to internal financial and contract databases, providing a 360-degree view of the customer's health.
+
+## Features
+
+- Automated Data Extraction: Connects to the QuestionPro API and fetches all survey responses with built-in pagination support.
+- Smart Parsing: Transforms complex JSON payloads into a clean tabular structure where each question code (Q1, Q2, etc.) becomes an independent column.
+- Data Normalization: Handles multiple-choice and text answers, concatenating multiple selections into readable comma-separated strings.
+- Dual Output: * Exports processed data to an Excel file (.xlsx).
+- Persists responses directly into a SQL Server database, automatically avoiding duplicate inserts based on responseID.
+- CI/CD Ready: Designed to be scheduled and run periodically (e.g., daily via GitHub Actions, Cron Jobs, or Windows Task Scheduler) to keep the Power BI dataset constantly updated.
 
 ## Repository Structure
 | File                        | Description |
@@ -17,20 +32,12 @@ Use: This tool plays an important role in customer success tracking pipelines.
 | `.env`                      | Environment variables file (should NOT be committed) |
 | `README.md`                 | This documentation file |
 
-## Features
-- Connects to the QuestionPro API using your API key and survey ID.
-- Fetches all survey responses with pagination support.
-- Parses responses to create a clean table where each question code is a column.
-- Handles multiple-choice and text answers.
-- Exports the processed data to an Excel file (`.xlsx`).
 
 ## Prerequisites
 - Python 3.7+
-- `requests` library
-- `pandas` library
-- `pyodbc`
-- `openpyxl`
-- `python-dotenv`
+- Required Libraries: `requests`, `pandas`, `pyodbc`, `openpyxl`, `python-dotenv`
+- Access to a SQL Server / Azure SQL database (for the ETL workflow)
+- A CI/CD or scheduling tool (if automating the pipeline)
 
 ## Configuration (.env)
 Create a .env file in the project root with the following variables:
@@ -41,24 +48,14 @@ Create a .env file in the project root with the following variables:
 - DB_PASSWORD=your_db_password
 
 ## Usage
-**API:**
-- Generate your API key on QuestionPro by following their API key generation guide.
-- Update the script's variables with your:
-  - `api_key` — Your QuestionPro API key
-  - `survey_id` — The survey ID to fetch responses from
-  - `env` — Regional domain if different from the default (`questionpro.com`)
- 
+**1. API Setup**
+- Generate your API key on QuestionPro by following their API key generation guide. Update the script's variables with your specific api_key, survey_id, and env (regional domain, if different from the default).
 
-**Recommended workflow:**
-- 1. Generate the Excel base file with survey data
-Run `import_questionpro.py` to fetch responses and export them to an Excel file (`quetsionpro_data.xlsx`).
+**2. Recommended Workflow**
+- 1. Generate the Base File: Run `import_questionpro.py` to fetch current responses and export them to an Excel file (`quetsionpro_data.xlsx`). This helps visualize the raw structure.
+- 2. Create the SQL Schema: Run `create_db_questionpro.ipynb` (or execute your equivalent SQL DDL scripts) to create the database table based on the extracted structure.
+- 3. Automate the Load: Run `etl_questionpro.py` to fetch responses and insert new entries into the SQL Server table. Schedule this script in your CI/CD pipeline to keep the database and Power BI dashboards up to date.
 
-- 2. Create the SQL Server table structure
-Run `create_db_questionpro.ipynb` (or equivalent script) to create the database table based on the Excel file's structure.
-
-- 3. Load survey responses into the database
-Run `etl_questionpro.p`y to fetch survey responses and insert new entries into the SQL Server table.
-This script can be scheduled (daily, weekly, etc.) to keep the database up to date with new responses.
 
 ## Example Output
 After running the script, the generated Excel file (`quetsionpro_data.xlsx`) will have a tabular structure similar to this:
