@@ -24,20 +24,24 @@ Challenges & Technical Solutions:
 - CI/CD Ready: Designed to be scheduled and run periodically (e.g., daily via GitHub Actions, Cron Jobs, or Windows Task Scheduler) to keep the Power BI dataset constantly updated.
 
 ## Repository Structure
-| File                        | Description |
-|-----------------------------|-------------|
-| `import_quentionpro.py` | Imports data from the API to Excel |
-| `etl_questionpro.py`        | Extracts responses from the API and inserts new ones into a SQL Server database |
-| `create_db_questionpro.ipynb` | Creates the SQL Server table from a base Excel file |
-| `.env`                      | Environment variables file (should NOT be committed) |
-| `README.md`                 | This documentation file |
+
+| File / Folder | Description |
+| :--- | :--- |
+| `.github/workflows/` | Contains the GitHub Actions YAML file (`etl_pipeline.yml`) for CI/CD pipeline automation. |
+| `import_questionpro.py` | Imports raw data from the API and exports it directly to an Excel file. |
+| `etl_questionpro.py` | Full ETL script: Extracts API responses, transforms data, and inserts new records into the SQL Server database. |
+| `create_db_questionpro.ipynb`| Jupyter Notebook detailing the creation of the SQL Server table schema and Primary Keys. |
+| `requirements.txt` | Lists all project dependencies to ensure environment reproducibility. |
+| `.gitignore` | Security and version control rules to prevent sensitive files (like `.env`) from being committed. |
+| `.env` | Environment variables file containing API keys and DB credentials (⚠️ **Should NOT be committed**). |
+| `README.md` | This documentation file. |
 
 
 ## Prerequisites
-- Python 3.7+
-- Required Libraries: `requests`, `pandas`, `pyodbc`, `openpyxl`, `python-dotenv`
-- Access to a SQL Server / Azure SQL database (for the ETL workflow)
-- A CI/CD or scheduling tool (if automating the pipeline)
+- **Python 3.10+**
+- **Dependencies:** All required libraries (e.g., `pandas`, `pyodbc`, `requests`, `SQLAlchemy`) are mapped in the `requirements.txt` file. Run `pip install -r requirements.txt` to install them.
+- **Database:** Access to a SQL Server / Azure SQL database (for the ETL workflow).
+- **Automation:** A CI/CD or scheduling tool (e.g., GitHub Actions, Airflow, or Cron) if you wish to automate the pipeline.
 
 ## Configuration (.env)
 Create a .env file in the project root with the following variables:

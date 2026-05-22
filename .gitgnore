@@ -1,0 +1,14 @@
+# Ambientes Virtuais e Cache
+__pycache__/
+*.py[cod]
+
+# Variáveis de Ambiente (CRÍTICO)
+.env
+
+# Arquivos de Dados Locais (Não subir para o GitHub)
+*.xlsx
+*.csv
+*.json
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
