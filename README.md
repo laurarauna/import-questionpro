@@ -4,6 +4,8 @@ A Python tool to extract survey responses from the QuestionPro API, with two out
 - Export responses to an Excel file
 - Persist responses directly into a SQL Server database
 
+Use: This tool plays an important role in customer success tracking pipelines.
+
 **Note:** This project is not affiliated with or endorsed by QuestionPro. It is an independent tool created to facilitate interaction with the QuestionPro API.
 
 ## Repository Structure
@@ -79,11 +81,19 @@ After running the script, the generated Excel file (`quetsionpro_data.xlsx`) wil
 - The ETL script handles pagination automatically and avoids inserting duplicate responses based on the responseID.
 
 
-## Integrating with Power BI
-You can connect your SQL Server database to Power BI to monitor survey responses in near real-time. Schedule etl_questionpro.py to run periodically (e.g., daily) to keep your dataset updated.
+## Aplication and Integrating with Power BI
 
-<img width="763" height="426" alt="Captura de tela 2026-05-21 163939" src="https://github.com/user-attachments/assets/66139d6a-b2b5-425f-8b26-aa7d96fd8215" />
+In this project, we create a summarized view of key customer retention and satisfaction metrics. This Power BI dashboard, requested by the Customer Success team, was designed to monitor the performance of customer retention call campaigns.
 
+A Customer Success form was created, and survey data from question-pro was cross-referenced with internal financial and contract databases.
+
+**Challenges: designing a survey to target customers with a poor relationship history and integrating financial data with customer success data.**
+
+<img width="1920" height="1080" alt="Projetos" src="https://github.com/user-attachments/assets/a1fdca63-db4d-47bb-80ba-d4929910f11c" />
+*Project pipeline*
+
+<img width="1920" height="1080" alt="Projetos (2)" src="https://github.com/user-attachments/assets/8dc18aa9-f72b-45d4-b147-e8d2995d3a64" />
+*Dashboard fed by periodic executions of etl_questionpro.py (e.g., daily) through the CI/CD pipeline*
 
 ## API Documentation
 For more details on the QuestionPro API endpoints, authentication, and advanced usage, refer to the official documentation:
